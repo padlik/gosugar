@@ -92,6 +92,12 @@ func (s *Session) loadInfo() error {
 	if err := mapstructure.DecodePath(resp, &s.Info); err != nil {
 		return err
 	}
+
+    //for some reason Users module is not in module list
+    //however it is available from Sugar
+	if !s.sanityModule("Users") {
+		s.Info.ModuleList = append(s.Info.ModuleList, "Users")
+	}
 	return nil
 }
 
