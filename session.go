@@ -157,12 +157,13 @@ func (s *Session) CallJson(method string, srv string, req interface{}, resp inte
 	if rp.StatusCode == 401 {
 		//trying to refresh token
 		if err := s.Refresh(); err != nil {
-			return errors.New("non OK responce: " + rp.Status)
+			return errors.New("non OK response: " + rp.Status)
 		}
 	}
 
 	if rp.StatusCode != 200 {
-		return errors.New("non OK responce: " + rp.Status)
+		body, _ := ioutil.ReadAll(rp.Body)
+		return errors.New("non OK response: " + rp.Status + "\nBody: " + string(body))
 	}
 
 	body, _ := ioutil.ReadAll(rp.Body)
