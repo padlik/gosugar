@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/goinggo/mapstructure"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 //Sugar authentication structure for oauth2 keys
@@ -40,8 +41,76 @@ type AuthResponse struct {
 }
 
 type SessionInfo struct {
-	Id         string   `jpath:"current_user.id"`
-	ModuleList []string `jpath:"current_user.module_list"`
+	Id                     string                     `mapstructure:"id"`
+	SessionType            string                     `mapstructure:"type"`
+	ShowWizard             string                     `mapstructure:"show_wizard"`
+	FullName               string                     `mapstructure:"full_name"`
+	Username               string                     `mapstructure:"user_name"`
+	Roles                  []string                   `mapstructure:"roles"`
+	IsPasswordExpired      bool                       `mapstructure:"is_password_expired"`
+	PasswordExpiredMessage string                     `mapstructure:"password_expired_message"`
+	Picture                string                     `mapstructure:"picture"`
+	Hash                   string                     `mapstructure:"_hash"`
+	ModuleList             []string                   `mapstructure:"module_list"`
+	Address                SessionAddress             `mapstructure:",squash"`
+	Organization           SessionOrganization        `mapstructure:",squash"`
+	Preferences            SessionPreferences         `mapstructure:"preferences"`
+	MyTeams                []SessionTeam              `mapstructure:"my_teams"`
+	ACL                    map[string]SessionACLEntry `mapstructure:"acl"`
+}
+type SessionTeam struct {
+	ID   string `mapstructure:"id"`
+	Name string `mapstructure:"name"`
+}
+type SessionACLEntry struct {
+	Fields     map[string]map[string]string `mapstructure:"fields"`
+	Admin      string                       `mapstructure:"admin"`
+	Developer  string                       `mapstructure:"developer"`
+	Access     string                       `mapstructure:"access"`
+	View       string                       `mapstructure:"view"`
+	List       string                       `mapstructure:"list"`
+	Edit       string                       `mapstructure:"edit"`
+	Delete     string                       `mapstructure:"delete"`
+	Import     string                       `mapstructure:"import"`
+	Export     string                       `mapstructure:"export"`
+	MassUpdate string                       `mapstructure:"massupdate"`
+	Hash       string                       `mapstructure:"_hash"`
+}
+type SessionOrganization struct {
+	IsManager         bool   `mapstructure:"is_manager"`
+	IsTopLevelManager bool   `mapstructure:"is_top_level_manager"`
+	ReportsToID       string `mapstructure:"reports_to_id"`
+	ReportsToName     string `mapstructure:"reports_to_name"`
+}
+type SessionAddress struct {
+	AddressStreet     string `mapstructure:"address_street"`
+	AddressCity       string `mapstructure:"address_city"`
+	AddressCountry    string `mapstructure:"address_country"`
+	AddressPostalCode string `mapstructure:"address_postalcode"`
+}
+type SessionPreferences struct {
+	Timezone                string              `mapstructure:"timezone"`
+	TzOffsetDisplay         string              `mapstructure:"tz_offset"`
+	TzOffsetSeconds         float64             `mapstructure:"tz_offset_sec"`
+	DateFormat              string              `mapstructure:"datepref"`
+	TimeFormat              string              `mapstructure:"timepref"`
+	CurrencyID              int                 `mapstructure:"currency_id"`
+	CurrencyName            string              `mapstructure:"currency_name"`
+	CurrencySymbol          string              `mapstructure:"currency_symbol"`
+	CurrencyISO             string              `mapstructure:"currency_iso"`
+	CurrencyRate            float64             `mapstructure:"currency_rate"`
+	ShowPreferredCurrency   bool                `mapstructure:"currency_show_preferred"`
+	DecimalPrecision        int                 `mapstructure:"decimal_precision"`
+	DecimalSeparator        string              `mapstructure:"decimal_separator"`
+	NumberGroupingSeparator string              `mapstructure:"number_grouping_separator"`
+	SignatureDefault        []string            `mapstructure:"signature_default"`
+	SignaturePrepend        bool                `mapstructure:"signature_prepend"`
+	EmailClientPreference   map[string]string   `mapstructure:"email_client_preference"`
+	LocaleNameDefaultFormat string              `mapstructure:"default_locale_name_format"`
+	FirstDayOfWeek          int                 `mapstructure:"first_day_of_week"`
+	Sweetspot               string              `mapstructure:"preferences.sweetspot"`
+	Language                string              `mapstructure:"preferences.language"`
+	DefaultTeams            []map[string]string `mapstructure:"default_teams"`
 }
 
 const service = "/rest/v10"
@@ -89,12 +158,17 @@ func (s *Session) loadInfo() error {
 		return err
 	}
 
-	if err := mapstructure.DecodePath(resp, &s.Info); err != nil {
-		return err
+	var ok bool
+	if resp, ok = resp["current_user"].(map[string]interface{}); ok {
+		if err := mapstructure.WeakDecode(resp, &s.Info); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("Couly not locate current_user json element.")
 	}
 
-    //for some reason Users module is not in module list
-    //however it is available from Sugar
+	//for some reason Users module is not in module list
+	//however it is available from Sugar
 	if !s.sanityModule("Users") {
 		s.Info.ModuleList = append(s.Info.ModuleList, "Users")
 	}
