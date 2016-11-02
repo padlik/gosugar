@@ -130,7 +130,14 @@ func (s *Session) Refresh() error {
 //req - data to marchall as JSON with the request
 //resp - pointer to response
 func (s *Session) CallJson(method string, srv string, req interface{}, resp interface{}) error {
-	b, err := json.Marshal(req)
+	var err error
+	var b []byte
+	if req == nil {
+		b = nil
+	} else {
+		b, err = json.Marshal(req)
+	}
+
 	if err != nil {
 		return err
 	}
