@@ -54,7 +54,7 @@ type SessionInfo struct {
 	ModuleList             []string                   `mapstructure:"module_list"`
 	Address                SessionAddress             `mapstructure:",squash"`
 	Organization           SessionOrganization        `mapstructure:",squash"`
-	Preferences            SessionPreferences         `mapstructure:"preferences"`
+	Preferences            SessionGlobalPreferences   `mapstructure:"preferences"`
 	MyTeams                []SessionTeam              `mapstructure:"my_teams"`
 	ACL                    map[string]SessionACLEntry `mapstructure:"acl"`
 }
@@ -88,7 +88,7 @@ type SessionAddress struct {
 	AddressCountry    string `mapstructure:"address_country"`
 	AddressPostalCode string `mapstructure:"address_postalcode"`
 }
-type SessionPreferences struct {
+type SessionGlobalPreferences struct {
 	Timezone                string              `mapstructure:"timezone"`
 	TzOffsetDisplay         string              `mapstructure:"tz_offset"`
 	TzOffsetSeconds         float64             `mapstructure:"tz_offset_sec"`
