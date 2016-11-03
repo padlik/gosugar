@@ -54,9 +54,10 @@ type SessionInfo struct {
 	ModuleList             []string                   `mapstructure:"module_list"`
 	Address                SessionAddress             `mapstructure:",squash"`
 	Organization           SessionOrganization        `mapstructure:",squash"`
-	Preferences            SessionGlobalPreferences   `mapstructure:"preferences"`
+	GlobalPreferences      SessionGlobalPreferences   `mapstructure:"preferences"`
 	MyTeams                []SessionTeam              `mapstructure:"my_teams"`
 	ACL                    map[string]SessionACLEntry `mapstructure:"acl"`
+	UserPreferences        SessionUserPreferences
 }
 type SessionTeam struct {
 	ID   string `mapstructure:"id"`
@@ -112,6 +113,50 @@ type SessionGlobalPreferences struct {
 	Language                string              `mapstructure:"preferences.language"`
 	DefaultTeams            []map[string]string `mapstructure:"default_teams"`
 }
+type SessionUserPreferences struct {
+	MailmergeOn                      string   `mapstructure:"mailmerge_on"`
+	MaxTabs                          int      `mapstructure:"max_tabs"`
+	SwapLastViewed                   string   `mapstructure:"swap_last_viewed"`
+	SwapShortcuts                    string   `mapstructure:"swap_shortcuts"`
+	SubpanelTabs                     string   `mapstructure:"subpanel_tabs"`
+	UserTheme                        string   `mapstructure:"user_theme"`
+	ModuleFavicon                    string   `mapstructure:"module_favicon"`
+	HideTabs                         []string `mapstructure:"hide_tabs"`
+	RemoveTabs                       []string `mapstructure:"remove_tabs"`
+	NoOpps                           string   `mapstructure:"no_opps"`
+	ReminderTime                     int      `mapstructure:"reminder_time"`
+	Timezone                         string   `mapstructure:"timezone"`
+	UT                               string   `mapstructure:"ut"`
+	CurrencyID                       int      `mapstructure:"currency"`
+	CurrencyDefaultSignificantDigits int      `mapstructure:"default_currency_significant_digits"`
+	NumberGroupSeparator             string   `mapstructure:"num_grp_sep"`
+	DecimalSeparator                 string   `mapstructure:"dec_sep"`
+	DateFormat                       string   `mapstructure:"datef"`
+	TimeFormat                       string   `mapstructure:"timef"`
+	MailSMTPServer                   string   `mapstructure:"mail_smtpserver"`
+	MailSMTPUser                     string   `mapstructure:"mail_smtpuser"`
+	MailSMTPPass                     string   `mapstructure:"mail_smtppass"`
+	LocaleDefaultNameFormat          string   `mapstructure:"default_locale_name_format"`
+	ExportDelimeter                  string   `mapstructure:"export_delimeter"`
+	ExportCharsetDefault             string   `mapstructure:"default_export_charset"`
+	UseRealNames                     string   `mapstructure:"use_real_names"`
+	MailSMTPAuthReq                  string   `mapstructure:"mail_smtpauth_req"`
+	MailSMTPSSL                      bool     `mapstructure:"mail_smtpssl"`
+	EmailLinkType                    string   `mapstructure:"email_link_type"`
+	EmailShowCounts                  bool     `mapstructure:"email_show_counts"`
+	CalendarPublishKey               string   `mapstructure:"calendar_publish_key"`
+	LoginExpiration                  string   `mapstructure:"loginexpiration"`
+	NavigationParadigm               string   `mapstructure:"navigation_paradigm"`
+	EmailReminderTime                int      `mapstructure:"email_reminder_time"`
+	CurrencyShowPreferred            bool     `mapstructure:"currency_show_preferred"`
+	Fdow                             string   `mapstructure:"fdow"`
+	SugarPDFMainFontName             string   `mapstructure:"sugarpdf_pdf_font_name_main"`
+	SugarPDFMainFontSize             string   `mapstructure:"sugarpdf_pdf_font_size_main"`
+	SugarPDFDataFontName             string   `mapstructure:"sugarpdf_pdf_font_name_data"`
+	SugarPDFDataFontSize             string   `mapstructure:"sugarpdf_pdf_font_size_data"`
+	Lockout                          string   `mapstructure:"lockout"`
+	LoginFailed                      string   `mapstructure:"loginfailed"`
+}
 
 const service = "/rest/v10"
 
@@ -165,6 +210,13 @@ func (s *Session) loadInfo() error {
 		}
 	} else {
 		return errors.New("Couly not locate current_user json element.")
+	}
+
+	if err := s.CallJson("GET", "/me/preferences", nil, &resp); err != nil {
+		return err
+	}
+	if err := mapstructure.WeakDecode(resp, &s.Info.UserPreferences); err != nil {
+		return err
 	}
 
 	//for some reason Users module is not in module list
