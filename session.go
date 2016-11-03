@@ -41,41 +41,41 @@ type AuthResponse struct {
 }
 
 type SessionInfo struct {
-	Id                     string                     `mapstructure:"id"`
-	SessionType            string                     `mapstructure:"type"`
-	ShowWizard             string                     `mapstructure:"show_wizard"`
+	ACL                    map[string]SessionACLEntry `mapstructure:"acl"`
+	Address                SessionAddress             `mapstructure:",squash"`
 	FullName               string                     `mapstructure:"full_name"`
-	Username               string                     `mapstructure:"user_name"`
-	Roles                  []string                   `mapstructure:"roles"`
+	GlobalPreferences      SessionGlobalPreferences   `mapstructure:"preferences"`
+	Hash                   string                     `mapstructure:"_hash"`
+	Id                     string                     `mapstructure:"id"`
 	IsPasswordExpired      bool                       `mapstructure:"is_password_expired"`
+	ModuleList             []string                   `mapstructure:"module_list"`
+	MyTeams                []SessionTeam              `mapstructure:"my_teams"`
+	Organization           SessionOrganization        `mapstructure:",squash"`
 	PasswordExpiredMessage string                     `mapstructure:"password_expired_message"`
 	Picture                string                     `mapstructure:"picture"`
-	Hash                   string                     `mapstructure:"_hash"`
-	ModuleList             []string                   `mapstructure:"module_list"`
-	Address                SessionAddress             `mapstructure:",squash"`
-	Organization           SessionOrganization        `mapstructure:",squash"`
-	GlobalPreferences      SessionGlobalPreferences   `mapstructure:"preferences"`
-	MyTeams                []SessionTeam              `mapstructure:"my_teams"`
-	ACL                    map[string]SessionACLEntry `mapstructure:"acl"`
+	Roles                  []string                   `mapstructure:"roles"`
+	SessionType            string                     `mapstructure:"type"`
+	ShowWizard             string                     `mapstructure:"show_wizard"`
 	UserPreferences        SessionUserPreferences
+	Username               string `mapstructure:"user_name"`
 }
 type SessionTeam struct {
 	ID   string `mapstructure:"id"`
 	Name string `mapstructure:"name"`
 }
 type SessionACLEntry struct {
-	Fields     map[string]map[string]string `mapstructure:"fields"`
-	Admin      string                       `mapstructure:"admin"`
-	Developer  string                       `mapstructure:"developer"`
 	Access     string                       `mapstructure:"access"`
-	View       string                       `mapstructure:"view"`
-	List       string                       `mapstructure:"list"`
-	Edit       string                       `mapstructure:"edit"`
+	Admin      string                       `mapstructure:"admin"`
 	Delete     string                       `mapstructure:"delete"`
-	Import     string                       `mapstructure:"import"`
+	Developer  string                       `mapstructure:"developer"`
+	Edit       string                       `mapstructure:"edit"`
 	Export     string                       `mapstructure:"export"`
-	MassUpdate string                       `mapstructure:"massupdate"`
+	Fields     map[string]map[string]string `mapstructure:"fields"`
 	Hash       string                       `mapstructure:"_hash"`
+	Import     string                       `mapstructure:"import"`
+	List       string                       `mapstructure:"list"`
+	MassUpdate string                       `mapstructure:"massupdate"`
+	View       string                       `mapstructure:"view"`
 }
 type SessionOrganization struct {
 	IsManager         bool   `mapstructure:"is_manager"`
@@ -90,72 +90,72 @@ type SessionAddress struct {
 	AddressPostalCode string `mapstructure:"address_postalcode"`
 }
 type SessionGlobalPreferences struct {
+	CurrencyID              int                 `mapstructure:"currency_id"`
+	CurrencyISO             string              `mapstructure:"currency_iso"`
+	CurrencyName            string              `mapstructure:"currency_name"`
+	CurrencyRate            float64             `mapstructure:"currency_rate"`
+	CurrencySymbol          string              `mapstructure:"currency_symbol"`
+	DateFormat              string              `mapstructure:"datepref"`
+	DecimalPrecision        int                 `mapstructure:"decimal_precision"`
+	DecimalSeparator        string              `mapstructure:"decimal_separator"`
+	DefaultTeams            []map[string]string `mapstructure:"default_teams"`
+	EmailClientPreference   map[string]string   `mapstructure:"email_client_preference"`
+	FirstDayOfWeek          int                 `mapstructure:"first_day_of_week"`
+	Language                string              `mapstructure:"preferences.language"`
+	LocaleNameDefaultFormat string              `mapstructure:"default_locale_name_format"`
+	NumberGroupingSeparator string              `mapstructure:"number_grouping_separator"`
+	ShowPreferredCurrency   bool                `mapstructure:"currency_show_preferred"`
+	SignatureDefault        []string            `mapstructure:"signature_default"`
+	SignaturePrepend        bool                `mapstructure:"signature_prepend"`
+	Sweetspot               string              `mapstructure:"preferences.sweetspot"`
+	TimeFormat              string              `mapstructure:"timepref"`
 	Timezone                string              `mapstructure:"timezone"`
 	TzOffsetDisplay         string              `mapstructure:"tz_offset"`
 	TzOffsetSeconds         float64             `mapstructure:"tz_offset_sec"`
-	DateFormat              string              `mapstructure:"datepref"`
-	TimeFormat              string              `mapstructure:"timepref"`
-	CurrencyID              int                 `mapstructure:"currency_id"`
-	CurrencyName            string              `mapstructure:"currency_name"`
-	CurrencySymbol          string              `mapstructure:"currency_symbol"`
-	CurrencyISO             string              `mapstructure:"currency_iso"`
-	CurrencyRate            float64             `mapstructure:"currency_rate"`
-	ShowPreferredCurrency   bool                `mapstructure:"currency_show_preferred"`
-	DecimalPrecision        int                 `mapstructure:"decimal_precision"`
-	DecimalSeparator        string              `mapstructure:"decimal_separator"`
-	NumberGroupingSeparator string              `mapstructure:"number_grouping_separator"`
-	SignatureDefault        []string            `mapstructure:"signature_default"`
-	SignaturePrepend        bool                `mapstructure:"signature_prepend"`
-	EmailClientPreference   map[string]string   `mapstructure:"email_client_preference"`
-	LocaleNameDefaultFormat string              `mapstructure:"default_locale_name_format"`
-	FirstDayOfWeek          int                 `mapstructure:"first_day_of_week"`
-	Sweetspot               string              `mapstructure:"preferences.sweetspot"`
-	Language                string              `mapstructure:"preferences.language"`
-	DefaultTeams            []map[string]string `mapstructure:"default_teams"`
 }
 type SessionUserPreferences struct {
-	MailmergeOn                      string   `mapstructure:"mailmerge_on"`
-	MaxTabs                          int      `mapstructure:"max_tabs"`
-	SwapLastViewed                   string   `mapstructure:"swap_last_viewed"`
-	SwapShortcuts                    string   `mapstructure:"swap_shortcuts"`
-	SubpanelTabs                     string   `mapstructure:"subpanel_tabs"`
-	UserTheme                        string   `mapstructure:"user_theme"`
-	ModuleFavicon                    string   `mapstructure:"module_favicon"`
-	HideTabs                         []string `mapstructure:"hide_tabs"`
-	RemoveTabs                       []string `mapstructure:"remove_tabs"`
-	NoOpps                           string   `mapstructure:"no_opps"`
-	ReminderTime                     int      `mapstructure:"reminder_time"`
-	Timezone                         string   `mapstructure:"timezone"`
-	UT                               string   `mapstructure:"ut"`
-	CurrencyID                       int      `mapstructure:"currency"`
+	CalendarPublishKey               string   `mapstructure:"calendar_publish_key"`
 	CurrencyDefaultSignificantDigits int      `mapstructure:"default_currency_significant_digits"`
-	NumberGroupSeparator             string   `mapstructure:"num_grp_sep"`
-	DecimalSeparator                 string   `mapstructure:"dec_sep"`
+	CurrencyID                       int      `mapstructure:"currency"`
+	CurrencyShowPreferred            bool     `mapstructure:"currency_show_preferred"`
 	DateFormat                       string   `mapstructure:"datef"`
-	TimeFormat                       string   `mapstructure:"timef"`
+	DecimalSeparator                 string   `mapstructure:"dec_sep"`
+	EmailLinkType                    string   `mapstructure:"email_link_type"`
+	EmailReminderTime                int      `mapstructure:"email_reminder_time"`
+	EmailShowCounts                  bool     `mapstructure:"email_show_counts"`
+	ExportCharsetDefault             string   `mapstructure:"default_export_charset"`
+	ExportDelimeter                  string   `mapstructure:"export_delimeter"`
+	Fdow                             string   `mapstructure:"fdow"`
+	HideTabs                         []string `mapstructure:"hide_tabs"`
+	LocaleDefaultNameFormat          string   `mapstructure:"default_locale_name_format"`
+	Lockout                          string   `mapstructure:"lockout"`
+	LoginExpiration                  string   `mapstructure:"loginexpiration"`
+	LoginFailed                      string   `mapstructure:"loginfailed"`
+	MailSMTPAuthReq                  string   `mapstructure:"mail_smtpauth_req"`
+	MailSMTPPass                     string   `mapstructure:"mail_smtppass"`
+	MailSMTPSSL                      bool     `mapstructure:"mail_smtpssl"`
 	MailSMTPServer                   string   `mapstructure:"mail_smtpserver"`
 	MailSMTPUser                     string   `mapstructure:"mail_smtpuser"`
-	MailSMTPPass                     string   `mapstructure:"mail_smtppass"`
-	LocaleDefaultNameFormat          string   `mapstructure:"default_locale_name_format"`
-	ExportDelimeter                  string   `mapstructure:"export_delimeter"`
-	ExportCharsetDefault             string   `mapstructure:"default_export_charset"`
-	UseRealNames                     string   `mapstructure:"use_real_names"`
-	MailSMTPAuthReq                  string   `mapstructure:"mail_smtpauth_req"`
-	MailSMTPSSL                      bool     `mapstructure:"mail_smtpssl"`
-	EmailLinkType                    string   `mapstructure:"email_link_type"`
-	EmailShowCounts                  bool     `mapstructure:"email_show_counts"`
-	CalendarPublishKey               string   `mapstructure:"calendar_publish_key"`
-	LoginExpiration                  string   `mapstructure:"loginexpiration"`
+	MailmergeOn                      string   `mapstructure:"mailmerge_on"`
+	MaxTabs                          int      `mapstructure:"max_tabs"`
+	ModuleFavicon                    string   `mapstructure:"module_favicon"`
 	NavigationParadigm               string   `mapstructure:"navigation_paradigm"`
-	EmailReminderTime                int      `mapstructure:"email_reminder_time"`
-	CurrencyShowPreferred            bool     `mapstructure:"currency_show_preferred"`
-	Fdow                             string   `mapstructure:"fdow"`
-	SugarPDFMainFontName             string   `mapstructure:"sugarpdf_pdf_font_name_main"`
-	SugarPDFMainFontSize             string   `mapstructure:"sugarpdf_pdf_font_size_main"`
+	NoOpps                           string   `mapstructure:"no_opps"`
+	NumberGroupSeparator             string   `mapstructure:"num_grp_sep"`
+	ReminderTime                     int      `mapstructure:"reminder_time"`
+	RemoveTabs                       []string `mapstructure:"remove_tabs"`
+	SubpanelTabs                     string   `mapstructure:"subpanel_tabs"`
 	SugarPDFDataFontName             string   `mapstructure:"sugarpdf_pdf_font_name_data"`
 	SugarPDFDataFontSize             string   `mapstructure:"sugarpdf_pdf_font_size_data"`
-	Lockout                          string   `mapstructure:"lockout"`
-	LoginFailed                      string   `mapstructure:"loginfailed"`
+	SugarPDFMainFontName             string   `mapstructure:"sugarpdf_pdf_font_name_main"`
+	SugarPDFMainFontSize             string   `mapstructure:"sugarpdf_pdf_font_size_main"`
+	SwapLastViewed                   string   `mapstructure:"swap_last_viewed"`
+	SwapShortcuts                    string   `mapstructure:"swap_shortcuts"`
+	TimeFormat                       string   `mapstructure:"timef"`
+	Timezone                         string   `mapstructure:"timezone"`
+	UT                               string   `mapstructure:"ut"`
+	UseRealNames                     string   `mapstructure:"use_real_names"`
+	UserTheme                        string   `mapstructure:"user_theme"`
 }
 
 const service = "/rest/v10"
